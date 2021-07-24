@@ -5,10 +5,30 @@
       <input type="text" v-model="name" placeholder="Todo name">
       <input type="text" v-model="description" placeholder="Todo description">
       <button v-on:click="createTodo">Create Todo</button>
-      <div v-for="item in todos" :key="item.id">
-        <h3>{{ item.name }}</h3>
-        <p>{{ item.description }}</p>
-      </div>
+      <table align="center">
+        <thead>
+          <tr>
+            <th>name</th>
+            <th>description</th>
+            <th>detail</th>
+            <th>delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <template v-for="item in todos" :key="item.id">
+            <tr>
+              <td>{{ item.name }}</td>
+              <td>{{ item.description }}</td>
+              <td>
+                <button @click="getTodo(item.id)">Detail</button>
+              </td>
+              <td>
+                <button @click="deleteTodo(item.id)">Delete</button>
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
     </div>
     <amplify-sign-out></amplify-sign-out>
   </amplify-authenticator>
@@ -17,13 +37,13 @@
 <script>
 import { API } from 'aws-amplify';
 import { createTodo } from './graphql/mutations';
-import { listTodos } from './graphql/queries';
+import { listTodos, getTodo } from './graphql/queries';
 import { onCreateTodo } from './graphql/subscriptions';
 
 export default {
   name: 'app',
   async created(){
-    this.getTodos();
+    this.listTodos();
     this.subscribe();
   },
   data() {
@@ -46,13 +66,20 @@ export default {
       this.name = '';
       this.description = '';
     },
-    async getTodos(){
+    async listTodos(){
       const todos = await API.graphql({
         query: listTodos
       });
       this.todos = todos.data.listTodos.items;
     },
-    async subscribe(){
+    async getTodo(todo_id){
+      const todo = await API.graphql({
+        query: getTodo,
+        variables: {id: todo_id},
+      });
+      console.log(todo);
+    },
+    subscribe(){
       API.graphql({ query: onCreateTodo })
         .subscribe({
           next: (eventData) => {
@@ -61,7 +88,7 @@ export default {
             this.todos = [...this.todos, todo];
           }
         });
-    }
+    },
   }
 };
 </script>
