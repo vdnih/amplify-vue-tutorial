@@ -10,7 +10,8 @@
           <tr>
             <th>name</th>
             <th>description</th>
-            <th>detail</th>
+            <th>get</th>
+            <th>update</th>
             <th>delete</th>
           </tr>
         </thead>
@@ -20,7 +21,10 @@
               <td>{{ item.name }}</td>
               <td>{{ item.description }}</td>
               <td>
-                <button @click="getTodo(item.id)">Detail</button>
+                <button @click="getTodo(item.id)">get</button>
+              </td>
+              <td>
+                <button @click="updateTodo(item.id)">update</button>
               </td>
               <td>
                 <button @click="deleteTodo(item.id)">Delete</button>
@@ -36,7 +40,7 @@
 
 <script>
 import { API } from 'aws-amplify';
-import { createTodo } from './graphql/mutations';
+import { createTodo, deleteTodo, updateTodo } from './graphql/mutations';
 import { listTodos, getTodo } from './graphql/queries';
 import { onCreateTodo } from './graphql/subscriptions';
 
@@ -78,6 +82,36 @@ export default {
         variables: {id: todo_id},
       });
       console.log(todo);
+      const message = "Todoの詳細"
+        + "\nname : " + todo.data.getTodo.name 
+        + "\ndescription : " + todo.data.getTodo.description
+        + "\ncreatedAt : " + todo.data.getTodo.createdAt
+        + "\nupdatedAt : " + todo.data.getTodo.updatedAt;
+      alert(message);
+    },
+    async updateTodo(todo_id){
+      const todo = {
+        id: todo_id,
+      };
+      console.log(todo);
+      await API.graphql({
+        query: updateTodo,
+        variables: {input: todo}
+      });
+      const message = "update todo : " + todo_id;
+      alert(message);
+    },
+    async deleteTodo(todo_id){
+      const todo = {
+        id: todo_id,
+      };
+      await API.graphql({
+        query: deleteTodo,
+        variables: {input: todo},
+      });
+      const message = "delete todo : " + todo_id;
+      alert(message);
+      this.listTodos();
     },
     subscribe(){
       API.graphql({ query: onCreateTodo })
