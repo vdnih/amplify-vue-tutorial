@@ -1,8 +1,8 @@
 {
-    "identityPoolName": "todo6c4332e3_identitypool_6c4332e3",
-    "allowUnauthenticatedIdentities": false,
-    "resourceNameTruncated": "todo6c4332e3",
-    "userPoolName": "todo6c4332e3_userpool_6c4332e3",
+    "identityPoolName": "todo3c7cae01_identitypool_3c7cae01",
+    "allowUnauthenticatedIdentities": true,
+    "resourceNameTruncated": "todo3c7cae01",
+    "userPoolName": "todo3c7cae01_userpool_3c7cae01",
     "autoVerifiedAttributes": [
         "email"
     ],
@@ -18,7 +18,8 @@
     "passwordPolicyMinLength": 8,
     "passwordPolicyCharacters": [],
     "requiredAttributes": [
-        "email"
+        "email",
+        "nickname"
     ],
     "userpoolClientGenerateSecret": false,
     "userpoolClientRefreshTokenValidity": 30,
@@ -28,10 +29,10 @@
     "userpoolClientReadAttributes": [
         "email"
     ],
-    "userpoolClientLambdaRole": "todo6c6c4332e3_userpoolclient_lambda_role",
+    "userpoolClientLambdaRole": "todo3c3c7cae01_userpoolclient_lambda_role",
     "userpoolClientSetAttributes": false,
-    "sharedId": "6c4332e3",
-    "resourceName": "todo6c4332e3",
+    "sharedId": "3c7cae01",
+    "resourceName": "todo3c7cae013c7cae01",
     "authSelections": "identityPoolAndUserPool",
     "authRoleArn": {
         "Fn::GetAtt": [
@@ -45,9 +46,22 @@
             "Arn"
         ]
     },
-    "useDefault": "default",
+    "useDefault": "manual",
+    "thirdPartyAuth": false,
+    "usernameAttributes": [
+        "email"
+    ],
+    "userPoolGroups": false,
+    "adminQueries": false,
+    "triggers": "{}",
+    "hostedUI": false,
     "userPoolGroupList": [],
     "serviceName": "Cognito",
     "usernameCaseSensitive": false,
+    "parentStack": {
+        "Ref": "AWS::StackId"
+    },
+    "breakCircularDependency": true,
+    "permissions": [],
     "dependsOn": []
 }
