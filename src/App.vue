@@ -1,41 +1,52 @@
 <template>
-  <amplify-authenticator>
-    <div id="app">
-      <h1>Todo App</h1>
-      <input type="text" v-model="name" placeholder="Todo name">
-      <input type="text" v-model="description" placeholder="Todo description">
-      <button v-on:click="createTodo">Create Todo</button>
-      <table align="center">
-        <thead>
-          <tr>
-            <th>name</th>
-            <th>description</th>
-            <th>get</th>
-            <th>update</th>
-            <th>delete</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template v-for="item in todos" :key="item.id">
-            <tr>
-              <td>{{ item.name }}</td>
-              <td>{{ item.description }}</td>
-              <td>
-                <button @click="getTodo(item.id)">get</button>
-              </td>
-              <td>
-                <button @click="updateTodo(item.id)">update</button>
-              </td>
-              <td>
-                <button @click="deleteTodo(item.id)">Delete</button>
-              </td>
-            </tr>
-          </template>
-        </tbody>
-      </table>
+  <div id="app">
+    <div v-if="authState !== 'signedin'">
+      <h1>サインイン画面</h1>
+      <amplify-authenticator>
+        <!-- eslint-disable-next-line vue/no-deprecated-slot-attribute -->
+        <amplify-sign-up slot="sign-up"
+          :form-fields="formFields"
+        ></amplify-sign-up>        
+      </amplify-authenticator>
     </div>
-    <amplify-sign-out></amplify-sign-out>
-  </amplify-authenticator>
+    <div v-if="authState === 'signedin' && user">
+      <div>
+        <h1>Todo App</h1>
+        <input type="text" v-model="name" placeholder="Todo name">
+        <input type="text" v-model="description" placeholder="Todo description">
+        <button v-on:click="createTodo">Create Todo</button>
+        <table align="center">
+          <thead>
+            <tr>
+              <th>name</th>
+              <th>description</th>
+              <th>get</th>
+              <th>update</th>
+              <th>delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            <template v-for="item in todos" :key="item.id">
+              <tr>
+                <td>{{ item.name }}</td>
+                <td>{{ item.description }}</td>
+                <td>
+                  <button @click="getTodo(item.id)">get</button>
+                </td>
+                <td>
+                  <button @click="updateTodo(item.id)">update</button>
+                </td>
+                <td>
+                  <button @click="deleteTodo(item.id)">Delete</button>
+                </td>
+              </tr>
+            </template>
+          </tbody>
+        </table>
+      </div>
+      <amplify-sign-out></amplify-sign-out>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -43,19 +54,35 @@ import { API } from 'aws-amplify';
 import { createTodo, deleteTodo, updateTodo } from './graphql/mutations';
 import { listTodos, getTodo } from './graphql/queries';
 import { onCreateTodo } from './graphql/subscriptions';
+import { onAuthUIStateChange } from '@aws-amplify/ui-components';
 
 export default {
   name: 'app',
   async created(){
     this.listTodos();
     this.subscribe();
+    this.unsubscribeAuth = onAuthUIStateChange((authState, authDate) => {
+      this.authState = authState;
+      this.user = authDate;
+    })
   },
   data() {
     return {
       name: '',
       description: '',
-      todos: []
+      todos: [],
+      user: undefined,
+      authState: undefined,
+      unsubscribeAuth: undefined,
+      formFields: [
+        { type: "username" },
+        { type: "password" },
+        { type: "email" }
+      ]
     }
+  },
+  beforeUnmount(){
+    this.unsubscribeAuth();
   },
   methods: {
     async createTodo() {

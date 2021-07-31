@@ -1,4 +1,11 @@
-type Todo @model {
+type Todo 
+  @model
+  @auth(
+    rules: [
+      {allow: private, provider: userPools, operations:[create, read, update, delete]}
+    ]
+  )
+{
   id: ID!
   name: String!
   description: String
